@@ -1,0 +1,23 @@
+---
+title: "HLM on Craigslist Discourse"
+output: html_notebook
+---
+
+#Overview
+This is the main analysis file. It takes a dataset of craigslist texts with two 40-topic STM fits, and runs analysis to assess the association with neighborhood racial proportions.
+
+```{r load libraries}
+library(tidyverse)
+library(lme4)
+library(forcats)
+```
+
+#Load Data
+```{r}
+data <- read_csv('data/hlm_cl.csv')
+```
+
+```{r}
+
+```
+
