@@ -18,6 +18,10 @@ data <- read_csv('data/hlm_cl.csv')
 ```
 
 ```{r}
+coef_sum <- estimate_effects(data, covariates = c("black_proportion", "asian_proportion", "latinx_proportion"))
+```
 
+```{r}
+plot_coef_sum(coef_sum)
 ```
 
