@@ -1,5 +1,5 @@
 
-estimate_effects <- function(data, covariates, topics = NULL, transform_y = NULL){
+estimate_effects <- function(data, covariates, model_type = 'glm', topics = NULL, transform_y = NULL, grouping_var = NULL, ...){
   if(is.null(topics)){ #if no topic vector gets passed
     # then we grab all of the names that are of the format ^Topic[numbers]$
     topics <- names(data)[str_detect(names(data), '^Topic\\d+$')]
@@ -7,13 +7,26 @@ estimate_effects <- function(data, covariates, topics = NULL, transform_y = NULL
       stop("ERROR: No topics found in Data, please include vector of topics")
     }
   }
-  return(map_dfr(topics, topic_coef, data = data, covariates = covariates, transform_y))
+  if(model_type == 'glm'){
+    right_side <- paste(covariates, collapse = '+')
+  }
+  if(model_type == 'lmer'){
+    require(lme4)
+    right_side <- paste(paste(covariates, collapse = '+'), '+ ( 1 |', grouping_var, ')')
+  }
+  return(map_dfr(topics, topic_coef, 
+                 data = data, 
+                 covariates,
+                 right_side = right_side, 
+                 model_type = model_type, 
+                 transform_y=transform_y))
 }
 
-topic_coef <- function(i, data, covariates,transform_y = NULL){
-  model_formula <- paste0(transform_y,'(',i, ')~', paste(covariates, collapse = '+'))
-  model_i <- glm(model_formula,
-                 data = data)
+topic_coef <- function(i, data, covariates, right_side, model_type ='glm', transform_y = NULL, ...){
+  model_type <- get(model_type)
+  model_formula <- paste0(transform_y,'(',i, ')~', right_side)
+  model_i <- model_type(model_formula,
+                 data = data, ...)
   sum_i <- summary(model_i)
   row <- tibble(topic = i,
                     covariate = covariates,
