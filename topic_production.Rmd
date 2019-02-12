@@ -1,0 +1,52 @@
+---
+title: "hlm_topics"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(stm)
+```
+
+```{r}
+hlm_cl <- read_csv('H:/hlm_cl/data/hlm_cl.csv')
+```
+
+```{r prep stm}
+temp <- textProcessor(documents = hlm_cl$cleanText, meta=hlm_cl, onlycharacter = TRUE) 
+out_hlm <- prepDocuments(temp$documents, temp$vocab, meta = temp$meta)
+```
+
+
+```{r fit stm}
+# fit one stm with no covariates
+stm_40 <- stm(out_hlm$documents, 
+                     out_hlm$vocab, 
+                     K = 40,
+                     data = out_hlm$meta,
+                     seed = 24)
+# fit another with racial proportions
+stm_prop <- stm(out_hlm$documents, 
+                     out_hlm$vocab, 
+                     K = 40,
+                     prevalence = ~ white_proportion+
+                     black_proportion+
+                     asian_proportion+
+                     latinx_proportion+
+                     all_other_proportion,
+                     data = out_hlm$meta,
+                     seed = 24)
+```
+
+```{r join to data}
+labelTopics(stm_40, n = 15)
+labelTopics(stm_prop, n = 15)
+```
+
+```{r}
+hlm_cl <- hlm_cl %>% select(-contains('Topic'))
+hlm_cl <- as_tibble(make.dt(stm_40, out_hlm$meta %>% select(-contains('Topic'), -contains('docnum'))))
+hlm_cl <- inner_join(hlm_cl, as_tibble(make.dt(stm_prop)), by = 'docnum', suffix = c("", "_p"))
+write_csv(hlm_cl,'H:/hlm_cl/data/hlm_cl.csv')
+```
+
