@@ -1,5 +1,6 @@
 
-estimate_effects <- function(data, covariates, model_type = 'glm', topics = NULL, transform_y = NULL, grouping_var = NULL, ...){
+estimate_effects <- function(data, focal_covariates, other_covariates = NULL, model_type = 'glm', topics = NULL, transform_y = NULL, grouping_var = NULL, ...){
+  covariates <- c(focal_covariates, other_covariates)
   if(is.null(topics)){ #if no topic vector gets passed
     # then we grab all of the names that are of the format ^Topic[numbers]$
     topics <- names(data)[str_detect(names(data), '^Topic\\d+$')]
@@ -17,35 +18,47 @@ estimate_effects <- function(data, covariates, model_type = 'glm', topics = NULL
   return(map_dfr(topics, topic_coef, 
                  data = data, 
                  covariates,
+                 focal_covariates,
                  right_side = right_side, 
                  model_type = model_type, 
-                 transform_y=transform_y))
+                 transform_y=transform_y, 
+                 ...))
 }
 
-topic_coef <- function(i, data, covariates, right_side, model_type ='glm', transform_y = NULL, ...){
+topic_coef <- function(i, data, covariates, focal_covariates, right_side, model_type ='glm', transform_y = NULL, ...){
   model_type <- get(model_type)
   model_formula <- paste0(transform_y,'(',i, ')~', right_side)
   model_i <- model_type(model_formula,
                  data = data, ...)
   sum_i <- summary(model_i)
   row <- tibble(topic = i,
-                    covariate = covariates,
-                    coefs = sum_i$coefficients[2:(1+length(covariates)),1], 
-                    stderrs = sum_i$coefficients[2:(1+length(covariates)),2]
+                    covariate = focal_covariates,
+                    coefs = sum_i$coefficients[2:(1+length(focal_covariates)),1], 
+                    stderrs = sum_i$coefficients[2:(1+length(focal_covariates)),2]
   )
   return(row)
 }
 
-plot_coef_sum<- function(coef_sum, topics_to_examine = NULL, topic_discriptions = NULL){
+plot_coef_sum<- function(coef_sum, topics_to_examine = NULL, topic_descriptions = NULL){
   if(is.null(topics_to_examine)){
-    topics_to_examine <- factor(str_extract(coef_sum$topic, '\\d+'))
+    #topics_to_examine <- factor(str_extract(coef_sum$topic, '\\d+'))
+    topics_to_examine <- c(7,18,20,25,34)
+  }
+  if(is.null(topic_descriptions)){
+    if(file.exists('topic_descriptions.txt')){
+      topic_descriptions <- read_csv('topic_descriptions.txt')
+      coef_sum <- coef_sum %>% left_join(topic_descriptions, by =  c('topic'))
+    } else {
+      coef_sum <- coef_sum %>% mutae(description = '')
+    }
+  } else {
+    coef_sum <- coef_sum %>% left_join(topic_descriptions, by =  c('topic'))
   }
   coef_sum %>%  
-    #left_join(topic_discriptions, by =  c('topic', 'covariate')) %>%
     mutate(high_est = coefs + stderrs, low_est = coefs - stderrs, topic = factor(str_extract(topic, '\\d+'))) %>% 
     arrange(desc(coefs))  %>%
     filter(topic %in% topics_to_examine) %>% 
-    ggplot(aes(x = reorder(topic, -coefs), y = coefs))+
+    ggplot(aes(x = reorder(description, -coefs), y = coefs))+
     geom_hline(yintercept = 0, color = "red", alpha=.5) + # plot a line at 0
     geom_pointrange(aes(ymax = high_est, ymin = low_est, color=covariate), size=.2, alpha = .8)+
     theme_minimal() + # auto exlude backgound shading

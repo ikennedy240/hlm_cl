@@ -15,13 +15,21 @@ library(forcats)
 #Load Data
 ```{r}
 data <- read_csv('data/hlm_cl.csv')
-```
+``` 
 
 ```{r}
-coef_sum <- estimate_effects(data, covariates = c("black_proportion", "asian_proportion", "latinx_proportion"))
+coef_sum <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("cleanRent", "cleanSqft", "pop_thousands", "log_income"))
+plot_coef_sum(coef_sum)
 ```
 
 ```{r}
 plot_coef_sum(coef_sum)
 ```
+
+```{r}
+coef_sum %>% arrange(desc(abs(coefs)))
+```
+
+20, 7, 25, 18, 34
+
 
