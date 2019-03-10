@@ -31,11 +31,12 @@ plot_coef_sum(coef_sum_mv_glm)
 ```{r}
 coef_sum_mv_hlm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer')
 plot_coef_sum(coef_sum_mv_hlm)
+
 ```
 
 
 ```{r}
-coef_sum_more <- estimate_effects(data, focal_covariates = c("white_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer')
+model_list <- estimate_effects(data, topics = c('Topic7', 'Topic18','Topic20','Topic25','Topic34'), focal_covariates = c("white_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer', return_model = TRUE, control =  lmerControl('bobyqa'))
 plot_coef_sum(coef_sum_more)
 ```
 

@@ -1,5 +1,5 @@
 
-estimate_effects <- function(data, focal_covariates, other_covariates = NULL, model_type = 'glm', topics = NULL, transform_y = NULL, grouping_var = NULL, ...){
+estimate_effects <- function(data, focal_covariates, other_covariates = NULL, model_type = 'glm', topics = NULL, transform_y = NULL, grouping_var = NULL, return_model = FALSE,  ...){
   covariates <- c(focal_covariates, other_covariates)
   if(is.null(topics)){ #if no topic vector gets passed
     # then we grab all of the names that are of the format ^Topic[numbers]$
@@ -16,21 +16,37 @@ estimate_effects <- function(data, focal_covariates, other_covariates = NULL, mo
     require(lme4)
     right_side <- paste(paste(covariates, collapse = '+'), '+ ( 1 |', grouping_var, ')')
   }
-  return(map_dfr(topics, topic_coef, 
-                 data = data, 
-                 covariates,
-                 focal_covariates,
-                 right_side = right_side, 
-                 model_type = model_type, 
-                 transform_y=transform_y, 
-                 ...))
+  if(return_model){
+    return(map(topics, topic_coef, 
+                   data = data, 
+                   covariates,
+                   focal_covariates,
+                   right_side = right_side, 
+                   model_type = model_type, 
+                   transform_y=transform_y, 
+                   return_model,
+                   ...))
+  } else {
+    return(map_dfr(topics, topic_coef, 
+                   data = data, 
+                   covariates,
+                   focal_covariates,
+                   right_side = right_side, 
+                   model_type = model_type, 
+                   transform_y=transform_y, 
+                   return_model,
+                   ...))
+  }
 }
 
-topic_coef <- function(i, data, covariates, focal_covariates, right_side, model_type ='glm', transform_y = NULL, ...){
+topic_coef <- function(i, data, covariates, focal_covariates, right_side, model_type ='glm', transform_y = NULL, return_model = FALSE, ...){
   model_type <- get(model_type)
   model_formula <- paste0(transform_y,'(',i, ')~', right_side)
   model_i <- model_type(model_formula,
                  data = data, ...)
+  if(return_model){
+    return(model_i)
+  }
   sum_i <- summary(model_i)
   row <- tibble(topic = i,
                     covariate = focal_covariates,
