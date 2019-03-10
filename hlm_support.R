@@ -41,6 +41,13 @@ topic_coef <- function(i, data, covariates, focal_covariates, right_side, model_
 }
 
 plot_coef_sum<- function(coef_sum, topics_to_examine = NULL, topic_descriptions = NULL){
+  suppressWarnings(if(is.null(coef_sum$upper)){
+    if(is.null(coef_sum$stderrs)){
+      stop("Dataframe must include coefs and stderrs or coefs and upper and lower")
+    }else{
+      coef_sum <- coef_sum %>% mutate(upper = coefs + stderrs, lower = coefs - stderrs)
+    }
+  })
   if(is.null(topics_to_examine)){
     #topics_to_examine <- factor(str_extract(coef_sum$topic, '\\d+'))
     topics_to_examine <- c(7,18,20,25,34)
@@ -50,24 +57,24 @@ plot_coef_sum<- function(coef_sum, topics_to_examine = NULL, topic_descriptions 
       topic_descriptions <- read_csv('topic_descriptions.txt')
       coef_sum <- coef_sum %>% left_join(topic_descriptions, by =  c('topic'))
     } else {
-      coef_sum <- coef_sum %>% mutae(description = '')
+      coef_sum <- coef_sum %>% mutate(description = '')
     }
   } else {
     coef_sum <- coef_sum %>% left_join(topic_descriptions, by =  c('topic'))
   }
   coef_sum %>%  
-    mutate(high_est = coefs + stderrs, low_est = coefs - stderrs, topic = factor(str_extract(topic, '\\d+'))) %>% 
+    mutate(topic = factor(str_extract(topic, '\\d+'))) %>% 
     arrange(desc(coefs))  %>%
     filter(topic %in% topics_to_examine) %>% 
     ggplot(aes(x = reorder(description, -coefs), y = coefs))+
     geom_hline(yintercept = 0, color = "red", alpha=.5) + # plot a line at 0
-    geom_pointrange(aes(ymax = high_est, ymin = low_est, color=covariate), size=.2, alpha = .8)+
+    geom_pointrange(aes(ymax = upper, ymin = lower, color=covariate), size=.2, alpha = .8)+
     theme_minimal() + # auto exlude backgound shading
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
     ggtitle("Estimated Effects of neighborhood type on Topic Distributions, no Covariates",
             subtitle = 'Showing only topics of interest as *Topic Title (Topic Number)*')+
     scale_color_discrete(name="Neighborhood Type")+
-    ylim(-max(abs(coef_sum$coefs))-.1,max(abs(coef_sum$coefs))+.1)+
+    ylim(min(coef_sum$lower)-.01,max(coef_sum$upper)+.01)+
     scale_x_discrete(expand = c(.05,.6))+
     ylab("Coefficient")+
     xlab("Topic Number")+
