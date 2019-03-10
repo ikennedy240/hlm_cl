@@ -12,6 +12,7 @@ estimate_effects <- function(data, focal_covariates, other_covariates = NULL, mo
     right_side <- paste(covariates, collapse = '+')
   }
   if(model_type == 'lmer'){
+    if(is.null(grouping_var)) stop("must include grouping variable")
     require(lme4)
     right_side <- paste(paste(covariates, collapse = '+'), '+ ( 1 |', grouping_var, ')')
   }
@@ -66,7 +67,7 @@ plot_coef_sum<- function(coef_sum, topics_to_examine = NULL, topic_descriptions 
     ggtitle("Estimated Effects of neighborhood type on Topic Distributions, no Covariates",
             subtitle = 'Showing only topics of interest as *Topic Title (Topic Number)*')+
     scale_color_discrete(name="Neighborhood Type")+
-    ylim(-max(abs(coef_sum$coefs))-.01,max(abs(coef_sum$coefs))+.01)+
+    ylim(-max(abs(coef_sum$coefs))-.1,max(abs(coef_sum$coefs))+.1)+
     scale_x_discrete(expand = c(.05,.6))+
     ylab("Coefficient")+
     xlab("Topic Number")+
