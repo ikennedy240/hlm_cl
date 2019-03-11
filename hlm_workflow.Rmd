@@ -84,11 +84,44 @@ ranef <- ranef(m3)
 #plot(ranef$GEOID10$white_proportion)
 plot(ranef$GEOID10, ranef$white_proportion)
 
-m3_7 <- lmer(Topic7 ~ black_proportion + asian_proportion + latinx_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
-m3_18 <- lmer(Topic18 ~ black_proportion + asian_proportion + latinx_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
-m3_20 <- lmer(Topic20 ~ black_proportion + asian_proportion + latinx_proportion  + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1  |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
-m3_25 <- lmer(Topic25 ~ black_proportion + asian_proportion + latinx_proportion  + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
-m3_34 <- lmer(Topic34 ~ black_proportion + asian_proportion + latinx_proportion  + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+dataT$dem_log_price <- data$log_price - mean(data$log_price)
+dataT$dem_log_sqft <- data$log_sqft - mean(data$log_sqft)
+dataT$dem_log_income <- data$log_income - mean(data$log_income)
+dataT$dem_pov_proportion <- data$pov_proportion - mean(data$pov_proportion)
+dataT$dem_pop_thousands <- data$pop_thousands - mean(data$pop_thousands)
+dataT$dem_share_oo <- data$share_oo - mean(data$share_oo)
+dataT$dem_share_rental_over_20 <- data$share_rental_over_20 - mean(data$share_rental_over_20)
+dataT$dem_share_built_after_10 <- data$share_built_after_10 - mean(data$share_built_after_10)
+dataT$dem_share_commuters <- data$share_commuters - mean(data$share_commuters)
+dataT$dem_share_college <- data$share_college - mean(data$share_college)
+dataT$dem_black_proportion <- dataT$black_proportion - mean(dataT$black_proportion) #logged version
+dataT$dem_white_proportion <- dataT$white_proportion - mean(dataT$white_proportion) #logged version
+dataT$dem_latinx_proportion <- dataT$latinx_proportion - mean(dataT$latinx_proportion) #logged version
+dataT$dem_asian_proportion <- dataT$asian_proportion - mean(dataT$asian_proportion) #logged version
+
+msimple_7 <- lm(Topic7 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion, data = dataT)
+msimple_18 <- lm(Topic18 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion, data = dataT)
+msimple_20 <- lm(Topic20 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion, data = dataT)
+msimple_25 <- lm(Topic25 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion, data = dataT)
+msimple_34 <- lm(Topic34 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion, data = dataT)
+
+mlin_7 <- lm(Topic7 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college, data = dataT)
+mlin_18 <- lm(Topic18 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college, data = dataT)
+mlin_20 <- lm(Topic20 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college, data = dataT)
+mlin_25 <- lm(Topic25 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college, data = dataT)
+mlin_34 <- lm(Topic34 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college, data = dataT)
+
+m3_7 <- lmer(Topic7 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college  + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_18 <- lmer(Topic18 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college  + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_20 <- lmer(Topic20 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college  + (1  |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_25 <- lmer(Topic25 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college  + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_34 <- lmer(Topic34 ~ dem_black_proportion + dem_asian_proportion + dem_latinx_proportion + dem_log_price + dem_log_sqft + dem_log_income + dem_pov_proportion + dem_pop_thousands + dem_share_oo + dem_share_rental_over_20 + dem_share_built_after_10 + dem_share_commuters + dem_share_college  + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+
+BIC(mlin_7) - BIC(m3_7)
+BIC(mlin_18)- BIC(m3_18)
+BIC(mlin_20) - BIC(m3_20)
+BIC(mlin_25) - BIC(m3_25)
+BIC(mlin_34) - BIC(m3_34)
 
 bic.min <- function(var){
   model <- lmer(paste("Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 +",var,"|GEOID10)"), lmerControl(optimizer = 'bobyqa'), REML = FALSE, data = dataT)
