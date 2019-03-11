@@ -10,6 +10,7 @@ This is the main analysis file. It takes a dataset of craigslist texts with two 
 library(tidyverse)
 library(lme4)
 library(forcats)
+source('hlm_support.R')
 ```
 
 #Load Data
@@ -37,7 +38,8 @@ plot_coef_sum(coef_sum_mv_hlm)
 
 ```{r}
 model_list <- estimate_effects(data, topics = c('Topic7', 'Topic18','Topic20','Topic25','Topic34'), focal_covariates = c("white_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer', return_model = TRUE, control =  lmerControl('bobyqa'))
-plot_coef_sum(coef_sum_more)
+#doesn't work
+#plot_coef_sum(coef_sum_more)
 ```
 
 ```{r}
@@ -48,20 +50,24 @@ m2 <- lmer(Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_
 m3 <- lmer(Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 + pop_thousands |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = data)
 screenreg(c(m0,m1, m2, m3))
 ranef <- ranef(m3)
-plot(ranef$GEOID10$white_proportion)
+
+# commenting out because it returns null
+#plot(ranef$GEOID10$white_proportion)
+plot(ranef$GEOID10, ranef$white_proportion)
+
 bic.min <- function(var){
   model <- lmer(paste("Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 +",var,"|GEOID10)"), lmerControl(optimizer = 'bobyqa'), REML = FALSE, data = data)
   return(model)
 }
 vars <- c("white_proportion", "log_price", "log_sqft", "log_income", "pov_proportion", "pop_thousands", "share_oo", "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college")
+#complains about singular fits and failures to converge
 models <- map(vars, bic.min)
 screenreg(models)
+#20, 7, 25, 18, 34
 ```
 
-20, 7, 25, 18, 34
 
 ## Let's do some Model Comparison using BIC
-
 
 Using imageplot.bma to confirm our choice of covariates.
   
@@ -102,4 +108,27 @@ Embedded in Neighborhoods (34)
 ```{r}
 bic.glm.34<- bic.glm(as.matrix(X), as.matrix(data %>% select(Topic34)), glm.family=gaussian)
 imageplot.bma(bic.glm.34)
+```
+
+```{r}
+# produce demeaned versions and logged versions of covariates of interest
+#"log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"
+
+data$dem_log_price <- data$log_price - mean(data$log_price)
+data$dem_log_sqft <- data$log_sqft - mean(data$log_sqft)
+data$dem_log_income <- data$log_income - mean(data$log_income)
+data$dem_pov_proportion <- data$pov_proportion - mean(data$pov_proportion)
+data$dem_pop_thousands <- data$pop_thousands - mean(data$pop_thousands)
+data$dem_share_oo <- data$share_oo - mean(data$share_oo)
+data$dem_share_rental_over_20 <- data$share_rental_over_20 - mean(data$share_rental_over_20)
+data$dem_share_built_after_10 <- data$share_built_after_10 - mean(data$share_built_after_10)
+data$dem_share_commuters <- data$share_commuters - mean(data$share_commuters)
+data$dem_share_college <- data$share_college - mean(data$share_college)
+data$Topic7_l <- log(data$Topic7)
+data$Topic18_l <- log(data$Topic18)
+data$Topic20_l <- log(data$Topic20)
+data$Topic25_l <- log(data$Topic25)
+data$Topic34_l <- log(data$Topic34)
+
+
 ```
