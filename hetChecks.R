@@ -101,7 +101,7 @@ dev.off()
 
 ##Some plots of logged version
 png('qqLogWhite.png')
-qqPlot(log1p(lt_data$white_proportion))
+qqPlot(log(lt_data$white_proportion))
 dev.off()
 
 png('qqLogBlack.png')
@@ -109,11 +109,11 @@ qqPlot(log1p(lt_data$black_proportion))
 dev.off()
 
 png('qqLogLatinx.png')
-qqPlot(log1p(lt_data$latinx_proportion))
+qqPlot(log(lt_data$latinx_proportion))
 dev.off()
 
 png('qqLogAsian.png')
-qqPlot(log1p(lt_data$asian_proportion))
+qqPlot(log(lt_data$asian_proportion))
 dev.off()
 
 model7nl <- lm(Topic7 ~ white_proportion + black_proportion + asian_proportion, data=lt_data)

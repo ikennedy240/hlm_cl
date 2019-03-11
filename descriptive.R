@@ -40,4 +40,9 @@ scor <- cor(x=numDF, method="spearman")
 pcor <- cor(x=numDF, method="pearson")
 #observation that white/black and white/asian are highly correlated
 
+cor.test(numDF$white_proportion, numDF$black_proportion, method="pearson")
+cor.test(numDF$white_proportion, numDF$black_proportion, method="spearman")
+
+cor.test(numDF$white_proportion, numDF$asian_proportion, method="pearson")
+cor.test(numDF$white_proportion, numDF$asian_proportion, method="spearman")
 

@@ -13,33 +13,60 @@ library(forcats)
 source('hlm_support.R')
 ```
 
-#Load Data
+#Load Data and transform
 ```{r}
 data <- read_csv('data/hlm_cl.csv')
+dataT <- data
+
+#log transformed topic proportions
+dataT$Topic7 <- log(data$Topic7) #trying not to mess with anything in hlm_support right now, yes I know this is a hack
+dataT$Topic18 <- log(data$Topic18)
+dataT$Topic20 <- log(data$Topic20)
+dataT$Topic25 <- log(data$Topic25)
+dataT$Topic34 <- log(data$Topic34)
+
+#log1p transformed racial proportions
+dataT$white_proportion <- log1p(data$white_proportion)
+dataT$black_proportion <- log1p(data$black_proportion)
+dataT$asian_proportion <- log1p(data$asian_proportion)
+dataT$latinx_proportion <- log1p(data$latinx_proportion)
+
 ``` 
 
 ```{r}
-coef_sum_bi_glm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), model_type = 'glm', family = 'binomial')
+#coef_sum_bi_glm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), model_type = 'glm', family = 'binomial')
+#plot_coef_sum(coef_sum_bi_glm)
+coef_sum_bi_glm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), model_type = 'glm', family = 'binomial') #note that these are log-transformed
+png("simpleEffPlot.png")
 plot_coef_sum(coef_sum_bi_glm)
+dev.off()
 ```
 
 ```{r}
-coef_sum_mv_glm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), model_type = 'glm')
+#coef_sum_mv_glm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), model_type = 'glm')
+#plot_coef_sum(coef_sum_mv_glm)
+coef_sum_mv_glm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), model_type = 'glm', topics=c("Topic7", "Topic18", "Topic20", "Topic25", "Topic34"))
+png("linearWithCtrl.png")
 plot_coef_sum(coef_sum_mv_glm)
+dev.off()
 ```
 
 
 ```{r}
-coef_sum_mv_hlm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer')
-plot_coef_sum(coef_sum_mv_hlm)
+#coef_sum_mv_hlm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer')
+#plot_coef_sum(coef_sum_mv_hlm)
+coef_sum_mv_hlm_five <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer', topics=c("Topic7", "Topic18", "Topic20", "Topic25", "Topic34"))
+plot_coef_sum(coef_sum_mv_hlm_five)
+#uses transformed race and topic data
 
 ```
 
 
 ```{r}
-model_list <- estimate_effects(data, topics = c('Topic7', 'Topic18','Topic20','Topic25','Topic34'), focal_covariates = c("white_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer', return_model = TRUE, control =  lmerControl('bobyqa'))
 #doesn't work
+#model_list <- estimate_effects(data, topics = c('Topic7', 'Topic18','Topic20','Topic25','Topic34'), focal_covariates = c("white_proportion"), other_covariates = c("log_price", "log_sqft"   ,          "log_income",        "pov_proportion" ,     "pop_thousands","share_oo" ,            "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college"), grouping_var = 'GEOID10', model_type = 'lmer', return_model = TRUE, control =  lmerControl('bobyqa'))
 #plot_coef_sum(coef_sum_more)
+
 ```
 
 ```{r}
@@ -48,6 +75,8 @@ m0 <- lmer(Topic20 ~ white_proportion + (1|GEOID10),  data = data)
 m1 <- lmer(Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1|GEOID10),  data = data)
 m2 <- lmer(Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 + white_proportion |GEOID10),  data = data)
 m3 <- lmer(Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 + pop_thousands |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = data)
+
+
 screenreg(c(m0,m1, m2, m3))
 ranef <- ranef(m3)
 
@@ -55,8 +84,14 @@ ranef <- ranef(m3)
 #plot(ranef$GEOID10$white_proportion)
 plot(ranef$GEOID10, ranef$white_proportion)
 
+m3_7 <- lmer(Topic7 ~ black_proportion + asian_proportion + latinx_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_18 <- lmer(Topic18 ~ black_proportion + asian_proportion + latinx_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_20 <- lmer(Topic20 ~ black_proportion + asian_proportion + latinx_proportion  + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1  |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_25 <- lmer(Topic25 ~ black_proportion + asian_proportion + latinx_proportion  + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+m3_34 <- lmer(Topic34 ~ black_proportion + asian_proportion + latinx_proportion  + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 |GEOID10), lmerControl(optimizer = 'bobyqa'), REML = FALSE,  data = dataT)
+
 bic.min <- function(var){
-  model <- lmer(paste("Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 +",var,"|GEOID10)"), lmerControl(optimizer = 'bobyqa'), REML = FALSE, data = data)
+  model <- lmer(paste("Topic20 ~ white_proportion + log_price + log_sqft + log_income + pov_proportion + pop_thousands + share_oo + share_rental_over_20 + share_built_after_10 + share_commuters + share_college + (1 +",var,"|GEOID10)"), lmerControl(optimizer = 'bobyqa'), REML = FALSE, data = dataT)
   return(model)
 }
 vars <- c("white_proportion", "log_price", "log_sqft", "log_income", "pov_proportion", "pop_thousands", "share_oo", "share_rental_over_20", "share_built_after_10", "share_commuters", "share_college")
@@ -74,40 +109,50 @@ Using imageplot.bma to confirm our choice of covariates.
 For Topic 7: Vintage Charm   
 ```{r}
 library(BMA)
-X <- data %>% select("black_proportion","asian_proportion", "latinx_proportion", "log_price", "log_sqft", "log_income", "pov_proportion", "pop_thousands", starts_with("share"), lat, lng)
+X <- dataT %>% select("black_proportion","asian_proportion", "latinx_proportion", "log_price", "log_sqft", "log_income", "pov_proportion", "pop_thousands", starts_with("share"), lat, lng)
 
 
 bic.glm.07<- bic.glm(as.matrix(X), as.matrix(data %>% select(Topic7)), glm.family=gaussian)
+png("model7_colorblock.png")
 imageplot.bma(bic.glm.07)
+dev.off()
 ```
     
 Sound and City Views (18)  
   
 ```{r}
-bic.glm.18<- bic.glm(as.matrix(X), as.matrix(data %>% select(Topic18)), glm.family=gaussian)
+bic.glm.18<- bic.glm(as.matrix(X), as.matrix(dataT %>% select(Topic18)), glm.family=gaussian)
+png("model18_colorblock.png")
 imageplot.bma(bic.glm.18)
+dev.off()
 ```
   
 Developments as Communities (20)
   
 ```{r}
-bic.glm.20<- bic.glm(as.matrix(X), as.matrix(data %>% select(Topic20)), glm.family=gaussian)
+bic.glm.20<- bic.glm(as.matrix(X), as.matrix(dataT %>% select(Topic20)), glm.family=gaussian)
+png("model20_colorblock.png")
 imageplot.bma(bic.glm.20)
+dev.off()
 ```
   
-Deposit and Utilities (24)  
+Top School Districts (25)  
   
 
 ```{r}
-bic.glm.25<- bic.glm(as.matrix(X), as.matrix(data %>% select(Topic25)), glm.family=gaussian)
+bic.glm.25<- bic.glm(as.matrix(X), as.matrix(dataT %>% select(Topic25)), glm.family=gaussian)
+png("model25_colorblock.png")
 imageplot.bma(bic.glm.25)
+dev.off()
 ```
   
 Embedded in Neighborhoods (34)  
   
 ```{r}
-bic.glm.34<- bic.glm(as.matrix(X), as.matrix(data %>% select(Topic34)), glm.family=gaussian)
+bic.glm.34<- bic.glm(as.matrix(X), as.matrix(dataT %>% select(Topic34)), glm.family=gaussian)
+png("model34_colorblock.png")
 imageplot.bma(bic.glm.34)
+dev.off()
 ```
 
 ```{r}
@@ -124,11 +169,6 @@ data$dem_share_rental_over_20 <- data$share_rental_over_20 - mean(data$share_ren
 data$dem_share_built_after_10 <- data$share_built_after_10 - mean(data$share_built_after_10)
 data$dem_share_commuters <- data$share_commuters - mean(data$share_commuters)
 data$dem_share_college <- data$share_college - mean(data$share_college)
-data$Topic7_l <- log(data$Topic7)
-data$Topic18_l <- log(data$Topic18)
-data$Topic20_l <- log(data$Topic20)
-data$Topic25_l <- log(data$Topic25)
-data$Topic34_l <- log(data$Topic34)
 
 
 ```
