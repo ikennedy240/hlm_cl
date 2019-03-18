@@ -1,21 +1,8 @@
 
-#5 topics, predict in bivariate (composite racial proportions) and multivariable
-#run an LM and a GLM of each of these, change 'model type' from lm to lmer (passes literal) and set a grouping_var
-#- update to most recent version, use estimate effects function to run models
-#  --> focal covariates will be dots in the plot
-#-black, asian, multi
-#-all covariates (proportion versions when available)
-
-#---scale vs don't scale them
-#---look at choice of logit vs linear
-
-#--check skedasticity of which vars on which scale
-
-#=====check the spread versus white, black, asian====
-
-#unlogged version of topic proportions
-
-#logged topic proportions
+#' ---
+#' title: "hetChecks.R -- code for evaluating heteroskedasticity" 
+#' author: "Kaylea Champion"
+#' ---
 
 ##Data prep for heteroskedasticity checks
 library(olsrr)
@@ -28,7 +15,6 @@ lt_data$l_Topic18 <- log(lt_data$Topic18)
 lt_data$l_Topic20 <- log(lt_data$Topic20)
 lt_data$l_Topic25 <- log(lt_data$Topic25)
 lt_data$l_Topic34 <- log(lt_data$Topic34)
-##
 
 png('qqTopic7.png')
 qqPlot(lt_data$Topic7)
@@ -99,23 +85,6 @@ png('qqAsian.png')
 qqPlot(lt_data$asian_proportion)
 dev.off()
 
-##Some plots of logged version
-png('qqLogWhite.png')
-qqPlot(log(lt_data$white_proportion))
-dev.off()
-
-png('qqLogBlack.png')
-qqPlot(log1p(lt_data$black_proportion))
-dev.off()
-
-png('qqLogLatinx.png')
-qqPlot(log(lt_data$latinx_proportion))
-dev.off()
-
-png('qqLogAsian.png')
-qqPlot(log(lt_data$asian_proportion))
-dev.off()
-
 model7nl <- lm(Topic7 ~ white_proportion + black_proportion + asian_proportion, data=lt_data)
 ols_test_f(model7nl, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
 
@@ -139,19 +108,19 @@ ols_test_score(model34nl)
 
 
 model7_isl <- lm(l_Topic7 ~ white_proportion + black_proportion + asian_proportion, data=lt_data)
-ols_test_f(model7, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
+ols_test_f(model7_isl, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
 
 model18_isl <- lm(l_Topic18 ~ white_proportion + black_proportion + asian_proportion, data=lt_data)
-ols_test_f(model18, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
+ols_test_f(model18_isl, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
 
 model20_isl <- lm(l_Topic20 ~ white_proportion + black_proportion + asian_proportion, data=lt_data)
-ols_test_f(model20, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
+ols_test_f(model20_isl, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
 
 model25_isl <- lm(l_Topic25 ~ white_proportion + black_proportion + asian_proportion, data=lt_data)
-ols_test_f(model25, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
+ols_test_f(model25_isl, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
 
 model34_isl <- lm(l_Topic34 ~ white_proportion + black_proportion + asian_proportion, data=lt_data)
-ols_test_f(model34, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
+ols_test_f(model34_isl, data=lt_data, vars=c("white_proportion","black_proportion", "asian_proportion"))
 
 ols_test_score(model7_isl)
 ols_test_score(model18_isl)

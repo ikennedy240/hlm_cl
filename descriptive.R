@@ -1,3 +1,10 @@
+
+#' ---
+#' title: "descriptive.R -- code for exploring data" 
+#' author: "Kaylea Champion"
+#' ---
+
+
 #This file produces a range of descriptive statistics and plots about our data
 #It's designed to be sourced from hlm_workflow.Rmd, not run standalone.
 library(dplyr)

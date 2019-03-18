@@ -1,4 +1,9 @@
 
+#' ---
+#' title: "hlm_support.R -- support functions for modeling and plotting" 
+#' author: "Ian Kennedy"
+#' ---
+
 estimate_effects <- function(data, focal_covariates, other_covariates = NULL, model_type = 'glm', topics = NULL, transform_y = NULL, grouping_var = NULL, return_model = FALSE,  ...){
   covariates <- c(focal_covariates, other_covariates)
   if(is.null(topics)){ #if no topic vector gets passed
