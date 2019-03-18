@@ -177,3 +177,100 @@ plot(model25_isl)
 plot(model34nl)
 plot(model34_isl)
 
+
+
+plot(msimple_7)
+plot(mlin_7)
+plot(m3_7)
+
+plot(msimple_18)
+plot(mlin_18)
+plot(m3_18)
+
+plot(msimple_20)
+plot(mlin_20)
+plot(m3_20)
+
+plot(msimple_25)
+plot(mlin_25)
+plot(m3_25)
+
+plot(msimple_34)
+plot(mlin_34)
+plot(m3_34)
+
+
+qqnorm(residuals(msimple_7)); qqline(residuals(msimple_7), col=2)
+qqnorm(residuals(mlin_7)); qqline(residuals(mlin_7), col=2)
+qqnorm(residuals(m3_7));  qqline(residuals(m3_7), col=2)
+
+qqnorm(residuals(msimple_18)); qqline(residuals(msimple_18), col=2)
+qqnorm(residuals(mlin_18)); qqline(residuals(mlin_18), col=2)
+qqnorm(residuals(m3_18)); qqline(residuals(m3_18), col=2)
+
+qqnorm(residuals(msimple_20)); qqline(residuals(msimple_20), col=2)
+qqnorm(residuals(mlin_20)); qqline(residuals(mlin_20), col=2)
+qqnorm(residuals(m3_20)); qqline(residuals(m3_20), col=2)
+
+qqnorm(residuals(msimple_25)); qqline(residuals(msimple_25), col=2)
+qqnorm(residuals(mlin_25)); qqline(residuals(mlin_25), col=2)
+qqnorm(residuals(m3_25)); qqline(residuals(m3_25), col=2)
+
+qqnorm(residuals(msimple_34)); qqline(residuals(msimple_34), col=2)
+qqnorm(residuals(mlin_34)); qqline(residuals(mlin_34), col=2)
+qqnorm(residuals(m3_34)); qqline(residuals(m3_34), col=2)
+
+qqnorm(residuals(msimple_7))
+qqnorm(residuals(mlin_7))
+qqnorm(residuals(m3_7))
+
+qqnorm(residuals(msimple_18))
+qqnorm(residuals(mlin_18))
+qqnorm(residuals(m3_18))
+
+qqnorm(residuals(msimple_20))
+qqnorm(residuals(mlin_20))
+qqnorm(residuals(m3_20))
+
+qqnorm(residuals(msimple_25))
+qqnorm(residuals(mlin_25))
+qqnorm(residuals(m3_25))
+
+qqnorm(residuals(msimple_34))
+qqnorm(residuals(mlin_34))
+qqnorm(residuals(m3_34))
+
+library(ggplot2)
+library(gridExtra)
+
+a7 <- qplot(residuals(msimple_7), bins=100, xlab = "Residuals") + ggtitle("Base Linear Model")
+b7 <- qplot(residuals(mlin_7), bins=100, xlab="Residuals") + ggtitle("Linear M. with Controls")
+c7 <- qplot(residuals(m3_7), bins=100, xlab="Residuals") + ggtitle("Hierarchical Model")
+
+#resid7.png
+grid.arrange(a7, b7, c7, nrow=1)
+
+a18 <- qplot(residuals(msimple_18), bins=100)
+b18<- qplot(residuals(mlin_18), bins=100)
+c18<- qplot(residuals(m3_18), bins=100)
+
+grid.arrange(a18, b18, c18, nrow=1)
+
+a20<- qplot(residuals(msimple_20), bins=100, xlab="Residuals") + ggtitle("Base Linear Model")
+b20<- qplot(residuals(mlin_20), bins=100, xlab="Residuals") + ggtitle("Linear M. with Controls")
+c20<- qplot(residuals(m3_20), bins=100, xlab="Residuals") + ggtitle("Hierarchical Model")
+
+#resid20.png
+grid.arrange(a20, b20, c20, nrow=1)
+
+a25 <- qplot(residuals(msimple_25), bins=100)
+b25 <- qplot(residuals(mlin_25), bins=100)
+c25 <- qplot(residuals(m3_25), bins=100)
+
+resid25 <- grid.arrange(a25, b25, c25, nrow=1)
+
+a34 <- qplot(residuals(msimple_34), bins=100)
+b34 <- qplot(residuals(mlin_34), bins=100)
+c34 <- qplot(residuals(m3_34), bins=100)
+
+resid34 <- grid.arrange(a34, b34, c34, nrow=1)

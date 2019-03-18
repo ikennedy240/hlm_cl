@@ -48,6 +48,7 @@ dataT$dem_asian_proportion <- dataT$asian_proportion - mean(dataT$asian_proporti
 ```
 
 
+
 ```{r}
 #coef_sum_bi_glm <- estimate_effects(data, focal_covariates = c("black_proportion", "asian_proportion", "latinx_proportion"), model_type = 'glm', family = 'binomial')
 #plot_coef_sum(coef_sum_bi_glm)
@@ -208,4 +209,7 @@ png("model34_colorblock.png")
 imageplot.bma(bic.glm.34)
 dev.off()
 ```
+
+
+
 
